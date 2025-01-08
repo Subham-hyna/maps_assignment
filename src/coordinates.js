@@ -21,7 +21,7 @@ const coordinates = [
     { latitude: 30.267153, longitude: -97.743057 }, // Austin, TX
     { latitude: 44.977753, longitude: -93.265015 }, // Minneapolis, MN
     { latitude: 32.776665, longitude: -96.796989 }, // Dallas, TX
-    { latitude: 45.515458, longitude: -122.679346 }, // Portland, OR
+    // { latitude: 45.515458, longitude: -122.679346 }, // Portland, OR
     { latitude: 51.0447, longitude: -114.0719 }, // Calgary
   
     // Indian Coordinates

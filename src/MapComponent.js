@@ -22,15 +22,16 @@ const usaBounds = {
     );
   };
 
-function MapComponent({ coordinates }) {
+  function MapComponent({ initialCoordinates }) {
     const [filteredCoordinates, setFilteredCoordinates] = useState([]);
     const [selected, setSelected] = useState(null);
+    const [newCoord, setNewCoord] = useState({ latitude: '', longitude: '' });
   
     useEffect(() => {
       // Filter coordinates to include only those within the USA
-      const usaCoordinates = coordinates.filter(isWithinUSA);
+      const usaCoordinates = initialCoordinates.filter(isWithinUSA);
       setFilteredCoordinates(usaCoordinates);
-    }, [coordinates]);
+    }, [initialCoordinates]);
   
     const handleMarkerClick = async (lat, lng) => {
       // Reverse geocoding to fetch city and state
@@ -45,27 +46,70 @@ function MapComponent({ coordinates }) {
       setSelected({ lat, lng, city, state });
     };
   
+    const handleInputChange = (e) => {
+      const { name, value } = e.target;
+      setNewCoord((prev) => ({ ...prev, [name]: value }));
+    };
+  
+    const handleAddMarker = () => {
+      const latitude = parseFloat(newCoord.latitude);
+      const longitude = parseFloat(newCoord.longitude);
+      if (isNaN(latitude) || isNaN(longitude)) {
+        alert("Please enter valid numeric values for latitude and longitude.");
+        return;
+      }
+  
+      if (!isWithinUSA({ latitude, longitude })) {
+        alert("The coordinates must be within the USA.");
+        return;
+      }
+  
+      setFilteredCoordinates((prev) => [...prev, { latitude, longitude }]);
+      setNewCoord({ latitude: '', longitude: '' });
+    };
+  
     return (
-      <LoadScript googleMapsApiKey="AIzaSyDLePgyuF75qFDA2iu8I0KdlNECMg7ocgA">
-        <GoogleMap mapContainerStyle={mapContainerStyle} center={center} zoom={4}>
-          {filteredCoordinates.map((coord, index) => (
-            <Marker
-              key={index}
-              position={{ lat: coord.latitude, lng: coord.longitude }}
-              onClick={() => handleMarkerClick(coord.latitude, coord.longitude)}
-            />
-          ))}
-          {selected && (
-            <InfoWindow position={{ lat: selected.lat, lng: selected.lng }} onCloseClick={() => setSelected(null)}>
-              <div>
-                <p>City: {selected.city}</p>
-                <p>State: {selected.state}</p>
-              </div>
-            </InfoWindow>
-          )}
-        </GoogleMap>
-      </LoadScript>
+      <>
+        <div style={{ padding: '10px', background: '#f4f4f4', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <input
+            type="text"
+            name="latitude"
+            value={newCoord.latitude}
+            placeholder="Enter latitude"
+            onChange={handleInputChange}
+            style={{ padding: '5px', width: '100px' }}
+          />
+          <input
+            type="text"
+            name="longitude"
+            value={newCoord.longitude}
+            placeholder="Enter longitude"
+            onChange={handleInputChange}
+            style={{ padding: '5px', width: '100px' }}
+          />
+          <button onClick={handleAddMarker} style={{ padding: '5px 10px' }}>Add Marker</button>
+        </div>
+        <LoadScript googleMapsApiKey="AIzaSyDLePgyuF75qFDA2iu8I0KdlNECMg7ocgA">
+          <GoogleMap mapContainerStyle={mapContainerStyle} center={center} zoom={4}>
+            {filteredCoordinates.map((coord, index) => (
+              <Marker
+                key={index}
+                position={{ lat: coord.latitude, lng: coord.longitude }}
+                onClick={() => handleMarkerClick(coord.latitude, coord.longitude)}
+              />
+            ))}
+            {selected && (
+              <InfoWindow position={{ lat: selected.lat, lng: selected.lng }} onCloseClick={() => setSelected(null)}>
+                <div>
+                  <p>City: {selected.city}</p>
+                  <p>State: {selected.state}</p>
+                </div>
+              </InfoWindow>
+            )}
+          </GoogleMap>
+        </LoadScript>
+      </>
     );
-}
+  }
 
 export default MapComponent
