@@ -24,6 +24,7 @@ const usaBounds = {
 
   function MapComponent({ initialCoordinates }) {
     const [filteredCoordinates, setFilteredCoordinates] = useState([]);
+    const [userAddedCoordinates, setUserAddedCoordinates] = useState([]);
     const [selected, setSelected] = useState(null);
     const [newCoord, setNewCoord] = useState({ latitude: '', longitude: '' });
   
@@ -41,7 +42,7 @@ const usaBounds = {
       const data = await response.json();
       const location = data.results[0]?.address_components;
       const city = location.find((comp) => comp.types.includes('locality'))?.long_name || 'Unknown';
-      const state = location.find((comp) => comp.types.includes('administrative_area_level_1'))?.long_name || 'Unknown';
+      const state = location.find((comp) => comp.types.includes('administrative_area_level_1'))?.short_name || 'Unknown';
   
       setSelected({ lat, lng, city, state });
     };
@@ -64,7 +65,7 @@ const usaBounds = {
         return;
       }
   
-      setFilteredCoordinates((prev) => [...prev, { latitude, longitude }]);
+      setUserAddedCoordinates([...userAddedCoordinates, { latitude, longitude }]);
       setNewCoord({ latitude: '', longitude: '' });
     };
   
@@ -91,6 +92,7 @@ const usaBounds = {
         </div>
         <LoadScript googleMapsApiKey="AIzaSyDLePgyuF75qFDA2iu8I0KdlNECMg7ocgA">
           <GoogleMap mapContainerStyle={mapContainerStyle} center={center} zoom={4}>
+            {/* Default markers */}
             {filteredCoordinates.map((coord, index) => (
               <Marker
                 key={index}
@@ -98,6 +100,19 @@ const usaBounds = {
                 onClick={() => handleMarkerClick(coord.latitude, coord.longitude)}
               />
             ))}
+  
+            {/* User-added markers with a unique icon */}
+            {userAddedCoordinates.map((coord, index) => (
+              <Marker
+                key={`user-${index}`}
+                position={{ lat: coord.latitude, lng: coord.longitude }}
+                icon={{
+                  url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png", // Unique icon for user-added markers
+                }}
+                onClick={() => handleMarkerClick(coord.latitude, coord.longitude)}
+              />
+            ))}
+  
             {selected && (
               <InfoWindow position={{ lat: selected.lat, lng: selected.lng }} onCloseClick={() => setSelected(null)}>
                 <div>
