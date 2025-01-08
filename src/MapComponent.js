@@ -65,8 +65,21 @@ const usaBounds = {
         return;
       }
   
-      setUserAddedCoordinates([...userAddedCoordinates, { latitude, longitude }]);
+      setUserAddedCoordinates((prev) => [...prev, { latitude, longitude }]);
       setNewCoord({ latitude: '', longitude: '' });
+    };
+  
+    const handleMapClick = (e) => {
+      const lat = e.latLng.lat();
+      const lng = e.latLng.lng();
+  
+      if (!isWithinUSA({ latitude: lat, longitude: lng })) {
+        alert("The clicked coordinates must be within the USA.");
+        return;
+      }
+  
+      // Add new marker at clicked location
+      setUserAddedCoordinates([...userAddedCoordinates, { latitude: lat, longitude: lng }]);
     };
   
     return (
@@ -78,7 +91,7 @@ const usaBounds = {
             value={newCoord.latitude}
             placeholder="Enter latitude"
             onChange={handleInputChange}
-            style={{ padding: '5px', width: '100px' }}
+            style={{ padding: '5px', width: '150px' }}
           />
           <input
             type="text"
@@ -86,12 +99,17 @@ const usaBounds = {
             value={newCoord.longitude}
             placeholder="Enter longitude"
             onChange={handleInputChange}
-            style={{ padding: '5px', width: '100px' }}
+            style={{ padding: '5px', width: '150px' }}
           />
           <button onClick={handleAddMarker} style={{ padding: '5px 10px' }}>Add Marker</button>
         </div>
         <LoadScript googleMapsApiKey="AIzaSyDLePgyuF75qFDA2iu8I0KdlNECMg7ocgA">
-          <GoogleMap mapContainerStyle={mapContainerStyle} center={center} zoom={4}>
+          <GoogleMap
+            mapContainerStyle={mapContainerStyle}
+            center={center}
+            zoom={4}
+            onClick={handleMapClick}  // Capture map click to add marker
+          >
             {/* Default markers */}
             {filteredCoordinates.map((coord, index) => (
               <Marker
