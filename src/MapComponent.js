@@ -42,7 +42,7 @@ const usaBounds = {
       const data = await response.json();
       const location = data.results[0]?.address_components;
       const city = location.find((comp) => comp.types.includes('locality'))?.long_name || 'Unknown';
-      const state = location.find((comp) => comp.types.includes('administrative_area_level_1'))?.short_name || 'Unknown';
+      const state = location.find((comp) => comp.types.includes('administrative_area_level_1'))?.long_name || 'Unknown';
   
       setSelected({ lat, lng, city, state });
     };
